@@ -1,0 +1,262 @@
+[
+    {
+        "NAME": "Oklahoma",
+        "POP_2021": 3986639,
+        "state": 40
+    },
+    {
+        "NAME": "Nebraska",
+        "POP_2021": 1963692,
+        "state": 31
+    },
+    {
+        "NAME": "Hawaii",
+        "POP_2021": 1441553,
+        "state": 15
+    },
+    {
+        "NAME": "South Dakota",
+        "POP_2021": 895376,
+        "state": 46
+    },
+    {
+        "NAME": "Tennessee",
+        "POP_2021": 6975218,
+        "state": 47
+    },
+    {
+        "NAME": "Nevada",
+        "POP_2021": 3143991,
+        "state": 32
+    },
+    {
+        "NAME": "New Mexico",
+        "POP_2021": 2115877,
+        "state": 35
+    },
+    {
+        "NAME": "Iowa",
+        "POP_2021": 3193079,
+        "state": 19
+    },
+    {
+        "NAME": "Kansas",
+        "POP_2021": 2934582,
+        "state": 20
+    },
+    {
+        "NAME": "District of Columbia",
+        "POP_2021": 670050,
+        "state": 11
+    },
+    {
+        "NAME": "Texas",
+        "POP_2021": 29527941,
+        "state": 48
+    },
+    {
+        "NAME": "Missouri",
+        "POP_2021": 6168187,
+        "state": 29
+    },
+    {
+        "NAME": "Arkansas",
+        "POP_2021": 3025891,
+        "state": 5
+    },
+    {
+        "NAME": "Michigan",
+        "POP_2021": 10050811,
+        "state": 26
+    },
+    {
+        "NAME": "New Hampshire",
+        "POP_2021": 1388992,
+        "state": 33
+    },
+    {
+        "NAME": "North Carolina",
+        "POP_2021": 10551162,
+        "state": 37
+    },
+    {
+        "NAME": "Ohio",
+        "POP_2021": 11780017,
+        "state": 39
+    },
+    {
+        "NAME": "South Carolina",
+        "POP_2021": 5190705,
+        "state": 45
+    },
+    {
+        "NAME": "Wyoming",
+        "POP_2021": 578803,
+        "state": 56
+    },
+    {
+        "NAME": "California",
+        "POP_2021": 39237836,
+        "state": 6
+    },
+    {
+        "NAME": "North Dakota",
+        "POP_2021": 774948,
+        "state": 38
+    },
+    {
+        "NAME": "Louisiana",
+        "POP_2021": 4624047,
+        "state": 22
+    },
+    {
+        "NAME": "Maryland",
+        "POP_2021": 6165129,
+        "state": 24
+    },
+    {
+        "NAME": "Delaware",
+        "POP_2021": 1003384,
+        "state": 10
+    },
+    {
+        "NAME": "Pennsylvania",
+        "POP_2021": 12964056,
+        "state": 42
+    },
+    {
+        "NAME": "Georgia",
+        "POP_2021": 10799566,
+        "state": 13
+    },
+    {
+        "NAME": "Oregon",
+        "POP_2021": 4246155,
+        "state": 41
+    },
+    {
+        "NAME": "Minnesota",
+        "POP_2021": 5707390,
+        "state": 27
+    },
+    {
+        "NAME": "Colorado",
+        "POP_2021": 5812069,
+        "state": 8
+    },
+    {
+        "NAME": "New Jersey",
+        "POP_2021": 9267130,
+        "state": 34
+    },
+    {
+        "NAME": "Kentucky",
+        "POP_2021": 4509394,
+        "state": 21
+    },
+    {
+        "NAME": "Washington",
+        "POP_2021": 7738692,
+        "state": 53
+    },
+    {
+        "NAME": "Maine",
+        "POP_2021": 1372247,
+        "state": 23
+    },
+    {
+        "NAME": "Vermont",
+        "POP_2021": 645570,
+        "state": 50
+    },
+    {
+        "NAME": "Idaho",
+        "POP_2021": 1900923,
+        "state": 16
+    },
+    {
+        "NAME": "Indiana",
+        "POP_2021": 6805985,
+        "state": 18
+    },
+    {
+        "NAME": "Montana",
+        "POP_2021": 1104271,
+        "state": 30
+    },
+    {
+        "NAME": "New York",
+        "POP_2021": 19835913,
+        "state": 36
+    },
+    {
+        "NAME": "Puerto Rico",
+        "POP_2021": 3263584,
+        "state": 72
+    },
+    {
+        "NAME": "Connecticut",
+        "POP_2021": 3605597,
+        "state": 9
+    },
+    {
+        "NAME": "Florida",
+        "POP_2021": 21781128,
+        "state": 12
+    },
+    {
+        "NAME": "Virginia",
+        "POP_2021": 8642274,
+        "state": 51
+    },
+    {
+        "NAME": "Massachusetts",
+        "POP_2021": 6984723,
+        "state": 25
+    },
+    {
+        "NAME": "Illinois",
+        "POP_2021": 12671469,
+        "state": 17
+    },
+    {
+        "NAME": "Mississippi",
+        "POP_2021": 2949965,
+        "state": 28
+    },
+    {
+        "NAME": "Arizona",
+        "POP_2021": 7276316,
+        "state": 4
+    },
+    {
+        "NAME": "Utah",
+        "POP_2021": 3337975,
+        "state": 49
+    },
+    {
+        "NAME": "Wisconsin",
+        "POP_2021": 5895908,
+        "state": 55
+    },
+    {
+        "NAME": "Alabama",
+        "POP_2021": 5039877,
+        "state": 1
+    },
+    {
+        "NAME": "West Virginia",
+        "POP_2021": 1782959,
+        "state": 54
+    },
+    {
+        "NAME": "Rhode Island",
+        "POP_2021": 1095610,
+        "state": 44
+    },
+    {
+        "NAME": "Alaska",
+        "POP_2021": 732673,
+        "state": 2
+    }
+]
