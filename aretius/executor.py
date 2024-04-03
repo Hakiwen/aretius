@@ -148,13 +148,10 @@ class Executor(BaseModel):
             if isinstance(item, list):
                 return self.build_joint_condition_tree(item)
             else:
-                # Assuming item is a Condition object
                 return item
 
         lhs = self.build_joint_condition_tree(result_list[0])
-        operator = JoinOperator(
-            result_list[1]
-        )  # Assuming result_list[1] is a valid JoinOperator
+        operator = JoinOperator(result_list[1])
         rhs = self.build_joint_condition_tree(result_list[2])
 
         return JointCondition(lhs=lhs, operator=operator, rhs=rhs)
