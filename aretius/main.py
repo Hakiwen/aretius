@@ -3,13 +3,6 @@ from aretius.executor import Executor, Col, Literal
 from result import Ok, Err
 
 
-def format_results(query_result: dict[Col, list[Literal]]) -> str:
-    output = ""
-    for col, values in query_result.items():
-        output += f"{col.name}: {', '.join(map(str, values))}\n"
-    return output
-
-
 if __name__ == "__main__":
 
     def main(json_path: str):
@@ -28,7 +21,7 @@ if __name__ == "__main__":
 
                 match r := sql_executor(query):
                     case Ok(q):
-                        format_results(q)
+                        print(q)
                     case Err(e):
                         print("Encountered an error:")
                         print(e)

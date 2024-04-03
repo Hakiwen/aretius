@@ -4,6 +4,7 @@ from result import Result, Ok, Err
 import re
 import enum
 import ast
+import pandas as pd
 
 
 class EqualityOperator(enum.Enum):
@@ -74,7 +75,7 @@ class Executor(BaseModel):
         cols = []
         for row in data:
             for k, v in row.items():
-                if k not in cols:
+                if k not in [s.name for s in cols]:
                     if isinstance(v, str):
                         cols.append(Col(name=k, type=ColType.STRING))
                     elif isinstance(v, int) or isinstance(v, float):
@@ -87,7 +88,7 @@ class Executor(BaseModel):
         # is it a string literal?
         literal_match = re.match(r"\'.*\'", side)
         if literal_match:
-            return Ok((literal_match.group(), ColType.STRING))
+            return Ok((literal_match.group().strip("'"), ColType.STRING))
 
         # is it a number?
         # NOTE: may be error prone
@@ -98,12 +99,12 @@ class Executor(BaseModel):
         # is it a column name?
         col_match = re.match(r"\w+", side)
         for c in self.cols:
-            if c.name == col_match:
+            if c.name == col_match.group():
                 return Ok((c, c.type))
         return Err(f"Syntax Error: could not parse {side}")
 
     def parse_condition(self, condition: str) -> Result[Condition, str]:
-        r = re.match(r"(\w+)\s*(=|!=)\s*(\w+)", condition)
+        r = re.match(r"('[^']*'|[\w]+)\s*(=|!=|<|>)\s*('[^']*'|[\w]+)", condition)
         if r is None:
             return Err(f"Could not match condition: {condition}")
 
@@ -135,7 +136,7 @@ class Executor(BaseModel):
                 operator = InequalityOperator(l)
             case _:
                 return Err(f"Invalid operator: {operator_literal}")
-        return Ok(Condition(lhs=lhs_literal, operator=operator, rhs=rhs_literal))
+        return Ok(Condition(lhs=lhs, operator=operator, rhs=rhs))
 
     # TODO: parens and nesting
     def parse_joint_condition(
@@ -173,6 +174,7 @@ class Executor(BaseModel):
         else:
             cols = []
             for c in cols_literal.split(","):
+                c = c.strip()
                 for s in self.cols:
                     if c == s.name:
                         cols.append(s)
@@ -226,7 +228,35 @@ class Executor(BaseModel):
     def evaluate_row_condition(
         self, row: dict, condition: Condition | JointCondition | None
     ) -> bool:
-        return True
+        if condition is None:
+            return True
+        if isinstance(condition, JointCondition):
+            raise NotImplementedError("Joint conditions not implemented")
+        if isinstance(condition.lhs, Col):
+            lhs = row[condition.lhs.name]
+        else:
+            lhs = condition.lhs
+        if isinstance(condition.rhs, Col):
+            rhs = row[condition.rhs.name]
+        else:
+            rhs = condition.rhs
+        match condition.operator:
+            case EqualityOperator.EQUALS:
+                return lhs == rhs
+            case EqualityOperator.NOT_EQUALS:
+                return lhs != rhs
+            case InequalityOperator.LESS_THAN:
+                assert (isinstance(lhs, int) or isinstance(lhs, float)) and (
+                    isinstance(rhs, int) or isinstance(rhs, float)
+                )
+                return lhs < rhs
+            case InequalityOperator.GREATER_THAN:
+                assert (isinstance(lhs, int) or isinstance(lhs, float)) and (
+                    isinstance(rhs, int) or isinstance(rhs, float)
+                )
+                return lhs > rhs
+            case _:
+                assert False, "unreachable"
 
     def find_rows(
         self, condition: Condition | JointCondition | None, limit: int | None
@@ -242,20 +272,21 @@ class Executor(BaseModel):
                 break
         return Ok(row_indices)
 
-    def execute_query(self, query: Query) -> Result[dict[Col, list[Literal]], str]:
+    def execute_query(self, query: Query) -> Result[pd.DataFrame, str]:
         rows = self.find_rows(query.condition, query.limit)
         if rows.is_err():
             return rows  # type: ignore
         rows = rows.unwrap()
 
-        res = {}
+        data = {}
         for c in query.cols:
-            res[c] = []
+            data[c.name] = []
             for r in rows:
-                res[c].append(self.rows[r][c.name])
-        return Ok(res)
+                data[c.name].append(self.rows[r][c.name])
+        df = pd.DataFrame(data)
+        return Ok(df)
 
-    def __call__(self, query: str) -> Result[dict[Col, list[Literal]], str]:
+    def __call__(self, query: str) -> Result[pd.DataFrame, str]:
         q = self.parse_query(query)
         if q.is_err():
             return q  # type: ignore
@@ -271,9 +302,9 @@ if __name__ == "__main__":
         os.path.join(script_dir, "..", "tests", "flat_state.json")
     )
     sqle = sqle.unwrap()
-    r = sqle("SELECT * FROM table LIMIT 5")
+    r = sqle("SELECT * FROM table WHERE POP_2021 > 10000000")
     match r:
         case Ok(q):
-            print(q)
+            print(q.head(5))
         case Err(e):
             print(e)
