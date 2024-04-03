@@ -98,6 +98,8 @@ class Executor(BaseModel):
 
         # is it a column name?
         col_match = re.match(r"\w+", side)
+        if col_match is None:
+            return Err(f"Syntax Error: could not match {side}")
         for c in self.cols:
             if c.name == col_match.group():
                 return Ok((c, c.type))
@@ -138,38 +140,58 @@ class Executor(BaseModel):
                 return Err(f"Invalid operator: {operator_literal}")
         return Ok(Condition(lhs=lhs, operator=operator, rhs=rhs))
 
-    # TODO: parens and nesting
+    def build_joint_condition_tree(self, result_list):
+        if isinstance(result_list, Condition):
+            return result_list
+        if len(result_list) == 1:
+            item = result_list[0]
+            if isinstance(item, list):
+                return self.build_joint_condition_tree(item)
+            else:
+                # Assuming item is a Condition object
+                return item
+
+        lhs = self.build_joint_condition_tree(result_list[0])
+        operator = JoinOperator(
+            result_list[1]
+        )  # Assuming result_list[1] is a valid JoinOperator
+        rhs = self.build_joint_condition_tree(result_list[2])
+
+        return JointCondition(lhs=lhs, operator=operator, rhs=rhs)
+
     def parse_joint_condition(
         self, condition: str
     ) -> Result[Condition | JointCondition, str]:
-        # check if condition is a joint condition (presence of AND or OR)
-        initial = re.match(r"(\w+)\s*(AND|OR)\s*(\w+)", condition)
-        if initial is None:
-            return self.parse_condition(condition)
-        lhs = self.parse_condition(initial.group(1))
-        if lhs.is_err():
-            return lhs
-        rhs = self.parse_condition(initial.group(3))
-        if rhs.is_err():
-            return rhs
-
-        try:
-            operator = JoinOperator(initial.group(2))
-        except Exception:
-            return Err(f"Invalid operator: {initial.group(2)}")
-
-        return Ok(
-            JointCondition(
-                lhs=lhs.unwrap(),
-                operator=operator,
-                rhs=rhs.unwrap(),
-            )
+        stack = []
+        result = []
+        tokens = re.findall(
+            r"(\(|\)|\bAND\b|\bOR\b|[^()\s]+\s*(?:=|<|>|!=)\s*(?:'[^']*'|[^()\s]+))",
+            condition,
+            flags=re.IGNORECASE,
         )
 
-        # all of the non-whitespace characters should be consumed
+        for token in tokens:
+            if token == "(":
+                stack.append(result)
+                result = []
+            elif token == ")":
+                group = result
+                result = stack.pop()
+                result.append(group)
+            elif token.upper() in ["AND", "OR"]:
+                result.append(token.upper())
+            else:
+                atomic_condition_literal = token.strip()
+                atomic_condition = self.parse_condition(atomic_condition_literal)
+                if atomic_condition.is_err():
+                    return atomic_condition
+                result.append(atomic_condition.unwrap())
+        if len(result) == 1:
+            return Ok(result[0])
+        return Ok(self.build_joint_condition_tree(result))
 
     def parse_cols(self, cols_literal: str) -> Result[list[Col], str]:
-        if cols_literal == "*":
+        if cols_literal.strip() == "*":
             cols = self.cols
         else:
             cols = []
@@ -186,8 +208,9 @@ class Executor(BaseModel):
     # TODO: should column names be case-insensitive?
     def parse_query(self, query: str) -> Result[Query, str]:
         groups = re.match(
-            r"SELECT\s+(.+)\s+FROM\s+(\w+)(?:\s+WHERE\s+(.+))?(?:\s+LIMIT\s+(\d+))?",
+            r"SELECT\s+(.+)\s+FROM\s+(\w+)(?:\s+WHERE\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:;)?$",
             query,
+            re.IGNORECASE,
         )
         if groups is None:
             return Err(f"Could not parse top-level query: {query}")
@@ -231,7 +254,18 @@ class Executor(BaseModel):
         if condition is None:
             return True
         if isinstance(condition, JointCondition):
-            raise NotImplementedError("Joint conditions not implemented")
+            match condition.operator:
+                case JoinOperator.AND:
+                    return self.evaluate_row_condition(
+                        row, condition.lhs
+                    ) and self.evaluate_row_condition(row, condition.rhs)
+                case JoinOperator.OR:
+                    return self.evaluate_row_condition(
+                        row, condition.lhs
+                    ) or self.evaluate_row_condition(row, condition.rhs)
+                case _:
+                    assert False, "unreachable"
+
         if isinstance(condition.lhs, Col):
             lhs = row[condition.lhs.name]
         else:

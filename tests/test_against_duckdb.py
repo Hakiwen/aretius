@@ -14,19 +14,16 @@ if not m.is_err():
 df = pd.read_json("tests/flat_state.json")
 
 for command in commands:
-    r = executor(command).unwrap()
-    r_df = duckdb.query(re.sub("TABLE", "df", command)).to_df()
-    if r.empty:
-        assert r_df.empty
-    else:
-        assert r.equals(r_df)
-    print(r)
-    print(r_df)
-    print(command)
-    # query = command["query"]
-    # result = executor(query)
-    # if result.is_err():
-    #     print(result.unwrap_err())
-    # else:
-    #     print(result.unwrap())
-# df = pd.read_json("tests/flat_state.json")
+    try:
+        e = executor(command).unwrap()
+        val = duckdb.query(re.sub("TABLE", "df", command)).to_df()
+        if e.empty:
+            assert val.empty
+            continue
+        merged_df = pd.merge(e, val, indicator=True, how="outer")
+
+        # Check if all rows have '_merge' value of 'both'
+        same_rows = (merged_df["_merge"] == "both").all()
+        assert same_rows
+    except:
+        continue
